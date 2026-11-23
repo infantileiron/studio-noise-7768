@@ -7,4 +7,8 @@ export const payload = {
   diagnostics: form => ({title: form.get('title'), method_id: Number(form.get('method_id')),
     session_ids: form.getAll('session_ids').map(Number),
   }),
+  acceptances: form => ({title: form.get('title'),
+    pre_session_ids: form.getAll('pre_session_ids').map(Number),
+    post_session_ids: form.getAll('post_session_ids').map(Number),
+  }),
 };

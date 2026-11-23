@@ -3,4 +3,6 @@ export function esc(value) {
 }
 export const signed = value => value == null ? '—' : `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(3)}`;
 export const level = value => Number(value).toFixed(2);
+export const decibel = value => value == null ? '—' : Number(value).toFixed(2);
+export const signedDb = value => value == null ? '—' : `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(2)}`;
 export const dateTime = value => value ? value.replace('T', ' ').slice(0, 16) : '—';

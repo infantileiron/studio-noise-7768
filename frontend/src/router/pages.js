@@ -1,5 +1,6 @@
 export const pages = {
   calendar: '测量日历', readings: '声测记录', methods: '变量版本', diagnostics: '底噪诊断', retest: '复测清单',
+  acceptance: '改造验收',
 };
 export function location() {
   const [key, id] = window.location.hash.slice(1).split('/');

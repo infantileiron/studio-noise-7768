@@ -66,5 +66,18 @@ class Diagnostic(Input):
         return self
 
 
+class Acceptance(Input):
+    title: Title
+    pre_session_ids: list[int] = Field(min_length=1, max_length=100)
+    post_session_ids: list[int] = Field(min_length=1, max_length=100)
+
+    @model_validator(mode='after')
+    def disjoint_sessions(self):
+        ids = self.pre_session_ids + self.post_session_ids
+        if min(ids) < 1 or len(set(ids)) != len(ids):
+            raise ValueError('时段编号必须为正整数，且同一时段不能算进两期')
+        return self
+
+
 class Decision(Input):
     text: str = Field(min_length=8, max_length=500)

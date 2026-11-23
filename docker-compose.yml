@@ -54,6 +54,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./backend/migrations/001_studio.sql:/docker-entrypoint-initdb.d/001_studio.sql:ro
+      - ./backend/migrations/002_acceptance.sql:/docker-entrypoint-initdb.d/002_acceptance.sql:ro
     healthcheck:
       test: ['CMD-SHELL', 'mysql -h 127.0.0.1 -u"$$MYSQL_USER" -p"$$MYSQL_PASSWORD" "$$MYSQL_DATABASE" -e "SELECT id FROM sessions LIMIT 0" >/dev/null']
       interval: 3s

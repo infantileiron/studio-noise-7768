@@ -10,6 +10,11 @@ RUN_COLUMNS = """d.id, d.title, d.method_id, m.version, m.predictor, d.state, d.
                  a.email AS owner, reviewer.email AS reviewer"""
 RUN_FROM = """FROM diagnostics d JOIN methods m ON d.method_id=m.id
               JOIN accounts a ON d.owner_id=a.id LEFT JOIN accounts reviewer ON d.reviewer_id=reviewer.id"""
+ACCEPTANCE_COLUMNS = """x.id, x.title, x.state, x.fingerprint, x.result, x.decision,
+                        x.created_at, x.finished_at, x.reviewed_at,
+                        owner.email AS owner, reviewer.email AS reviewer"""
+ACCEPTANCE_FROM = """FROM acceptances x JOIN accounts owner ON x.owner_id=owner.id
+                     LEFT JOIN accounts reviewer ON x.reviewer_id=reviewer.id"""
 
 
 def decode_json(row, *keys):

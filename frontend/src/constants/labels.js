@@ -11,5 +11,21 @@ export const warnings = {
   NO_CONTROL_VARIATION: '至少一个控制量在本次样本里只有一个水平，请扩大时段或调整方案。',
   LOW_RESIDUAL_DF: '残差自由度小于 2，请增加样本或减少控制量。',
   ZERO_RESIDUAL_VARIATION: '至少一个变量残差近似恒定，无法计算偏相关。',
-  CALCULATION_FAILED: '后台计算遇到异常，请核查服务后重新提交诊断。',
+  EMPTY_PHASE: '改造前后至少各需一条声测，请先补录再提交验收。',
+  NO_COMPARABLE_GROUP: '没有任何风机×测点组合能在两期共有车流范围内比较，请检查车流覆盖。',
+  CALCULATION_FAILED: '后台计算遇到异常，请核查服务后重新提交。',
+};
+export const acceptPhase = {pre: '改造前', post: '改造后'};
+export const inclusion = {included: '纳入', excluded: '排除'};
+export const exclusion = {
+  GROUP_SINGLE_PHASE: '该组合仅在一期有测量',
+  NO_TRAFFIC_OVERLAP: '两期车流范围不重叠',
+  OUTSIDE_TRAFFIC_OVERLAP: '车流超出两期重叠范围',
+  BIN_MISSING_COUNTERPART: '同车流档缺另一期样本',
+};
+export const groupFlag = {
+  GROUP_SINGLE_PHASE: '仅单期测量',
+  NO_TRAFFIC_OVERLAP: '车流不重叠',
+  NO_COMPARABLE_BIN: '无共有车流档',
+  NARROW_TRAFFIC_OVERLAP: '重叠偏窄',
 };

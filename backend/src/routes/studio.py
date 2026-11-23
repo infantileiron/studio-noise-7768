@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response
 
 from src.controllers.accounts import Reader, Reviewer, Writer, login
 from src.schemas import input as forms
-from src.services import catalog, diagnostics
+from src.services import acceptances, catalog, diagnostics
 
 router = APIRouter()
 
@@ -70,5 +70,32 @@ def publish_diagnostic(identifier: int, data: forms.Decision, account: Reviewer)
 @router.get('/diagnostics/{identifier}/export')
 def download(identifier: int, account: Reader):
     filename, document = diagnostics.export(identifier, account)
+    return Response(document, media_type='application/json',
+                    headers={'Content-Disposition': f'attachment; filename="{filename}"'})
+
+
+@router.get('/acceptances')
+def list_acceptances(account: Reader):
+    return acceptances.list_runs(account)
+
+
+@router.post('/acceptances', status_code=202)
+def queue_acceptance(data: forms.Acceptance, account: Writer):
+    return acceptances.queue(data.model_dump(), account)
+
+
+@router.get('/acceptances/{identifier}')
+def acceptance(identifier: int, account: Reader):
+    return acceptances.get_run(identifier, account)
+
+
+@router.post('/acceptances/{identifier}/publish')
+def publish_acceptance(identifier: int, data: forms.Decision, account: Reviewer):
+    return acceptances.publish(identifier, data.text, account)
+
+
+@router.get('/acceptances/{identifier}/export')
+def download_acceptance(identifier: int, account: Reader):
+    filename, document = acceptances.export(identifier, account)
     return Response(document, media_type='application/json',
                     headers={'Content-Disposition': f'attachment; filename="{filename}"'})
