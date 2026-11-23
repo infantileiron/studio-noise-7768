@@ -1,0 +1,7 @@
+fastapi==0.115.12
+uvicorn==0.34.2
+PyMySQL==1.1.2
+cryptography==45.0.7
+PyJWT==2.10.1
+redis==5.2.1
+numpy==2.2.6

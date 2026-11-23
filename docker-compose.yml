@@ -1,0 +1,80 @@
+name: ${COMPOSE_PROJECT_NAME:-studio-noise}
+x-python: &python
+  build: ./backend
+  environment:
+    MYSQL_DATABASE: ${MYSQL_DATABASE:-studio_noise}
+    MYSQL_USER: ${MYSQL_USER:-studio}
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD:-studio_local_dev}
+    JWT_SECRET: ${JWT_SECRET:-studio-local-demo-replace-before-deployment-x8fc3d}
+    SEED_DEMO: ${SEED_DEMO:-true}
+  depends_on:
+    db: {condition: service_healthy}
+    redis: {condition: service_healthy}
+  volumes:
+    - exports:/exports
+services:
+  frontend:
+    build: ./frontend
+    container_name: ${COMPOSE_PROJECT_NAME:-studio-noise}-frontend
+    ports: ['127.0.0.1:${FRONTEND_PORT:-18271}:80']
+    depends_on:
+      backend: {condition: service_healthy}
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO /dev/null http://127.0.0.1/api/health']
+      interval: 3s
+      timeout: 3s
+      retries: 15
+  backend:
+    <<: *python
+    container_name: ${COMPOSE_PROJECT_NAME:-studio-noise}-backend
+    ports: ['127.0.0.1:${BACKEND_PORT:-19271}:8000']
+    healthcheck:
+      test: ['CMD', 'python', '-c', "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 3s
+      timeout: 4s
+      retries: 20
+  worker:
+    <<: *python
+    container_name: ${COMPOSE_PROJECT_NAME:-studio-noise}-worker
+    command: ['python', '-m', 'src.worker']
+    healthcheck:
+      test: ['CMD', 'python', '-c', "from src.config.runtime import cache; assert cache.exists('studio:worker:heartbeat')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  db:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME:-studio-noise}-db
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-studio_noise}
+      MYSQL_USER: ${MYSQL_USER:-studio}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-studio_local_dev}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-studio_root_local_dev}
+    ports: ['127.0.0.1:${DB_PORT:-17771}:3306']
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./backend/migrations/001_studio.sql:/docker-entrypoint-initdb.d/001_studio.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'mysql -h 127.0.0.1 -u"$$MYSQL_USER" -p"$$MYSQL_PASSWORD" "$$MYSQL_DATABASE" -e "SELECT id FROM sessions LIMIT 0" >/dev/null']
+      interval: 3s
+      timeout: 4s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-studio-noise}-redis
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 3s
+      timeout: 3s
+      retries: 15
+volumes:
+  mysql-data:
+  redis-data:
+  exports:
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${NETWORK_SUBNET:-10.221.202.0/24}
